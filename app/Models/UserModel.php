@@ -9,7 +9,7 @@ class UserModel extends Model
 {
     protected $table            = 'users';
     protected $primaryKey       = 'id';
-    protected $allowedFields    = ['name', 'email', 'password', 'image', 'created_at'];
+    protected $allowedFields    = ['name', 'email', 'password', 'image', 'date_created'];
 
     public function encryptPass($password)
     {
@@ -31,14 +31,23 @@ class UserModel extends Model
         if (!$data) {
             return false;
         } else {
-            $data = $builder->where('password', $password)->first();
-            if (!$data) {
+            $id = $data['id'];
+            $pass = $data['password'];
+            $is_active = $data['is_active'];
+            if ($pass !== $password) {
                 return false;
             } else {
-                return true;
+                // dd($email);
+                helper('jwt');
+                $token = createJWT($id, $email, $is_active);
+                $expireCookie = time() + 3600000;
+                setcookie("COOKIE-SESSION", $token, $expireCookie, '/', null, 'null', true);
+                return $token;
             }
+            // return $data;
         }
     }
+
 
     public function register($dataInserted)
     {
@@ -50,9 +59,6 @@ class UserModel extends Model
             $model->save($dataInserted);
             return true;
         } else {
-            // //can be changed to return something and check in controller
-            // //then pass it to alert in home
-            // throw new PageNotFoundException('Account already exists.');
             return false;
         }
     }
