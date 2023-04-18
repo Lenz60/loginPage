@@ -4,6 +4,8 @@ namespace App\Controllers;
 
 use App\Models\UserModel;
 use App\Controllers\BaseController;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 
 class AuthController extends BaseController
 {
@@ -35,13 +37,23 @@ class AuthController extends BaseController
             'email' => $email,
             'password' => $model->encryptPass($password)
         ];
-        if ($model->login($data)) {
-            return view('home');
-        } else {
-            $session->setFlashdata('message', '<div class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
-                <span class="font-medium">Email or Password is wrong!</span>
+        $result = $model->login($data);
+        if ($result == false) {
+            $session->setFlashdata('message', '<div class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-300 dark:bg-gray-800 dark:text-red-400" role="alert">
+                <span class="font-medium">Wrong email or password</span>
               </div>');
             return redirect()->to('/auth');
+        } else {
+            $key = getenv('JWT_SECRET_KEY');
+            $decoded_token = JWT::decode($result, new Key($key, 'HS256'));
+            if ($decoded_token->is_active == 0) {
+                return redirect()->to('/');
+            } else {
+                $session->setFlashdata('message', '<div class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-300 dark:bg-gray-800 dark:text-red-400" role="alert">
+                <span class="font-medium">Email is not activated</span>
+              </div>');
+                return redirect()->to('/auth');
+            }
         }
     }
 
@@ -97,8 +109,9 @@ class AuthController extends BaseController
                 'password' => $model->encryptPass($password),
                 'image' => $image,
                 'is_active' => 0,
-                'date_created' => time()
+                'date_created' => time(),
             ];
+            // dd($data['date_created']);
             if ($model->register($data)) {
                 $session->setFlashdata('message', '<div class="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400" role="alert">
             <span class="font-medium">Account Created !</span> Please login.
