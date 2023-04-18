@@ -11,9 +11,14 @@ class Users extends Migration
         $this->forge->addField([
             'id' => [
                 'type'           => 'INT',
-                'constraint'     => 5,
+                'constraint'     => 11,
                 'unsigned'       => true,
                 'auto_increment' => true,
+            ],
+            'name' => [
+                'type' => 'VARCHAR',
+                'constraint' => '255',
+                'null' => false,
             ],
             'email' => [
                 'type'       => 'VARCHAR',
@@ -25,11 +30,21 @@ class Users extends Migration
                 'constraint' => '255',
                 'null' => false,
             ],
-            'name' => [
+            'image' => [
                 'type' => 'VARCHAR',
                 'constraint' => '255',
+            ],
+            'is_active' => [
+                'type' => 'INT',
+                'constraint' => '1',
                 'null' => false,
             ],
+            'date_created' => [
+                'type' => 'INT',
+                'constraint' => '11',
+                'null' => false,
+            ],
+
 
         ]);
         $this->forge->addKey('id', true);
