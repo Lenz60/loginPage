@@ -41,7 +41,6 @@ class Users extends Migration
             ],
             'date_created' => [
                 'type' => 'INT',
-                'constraint' => '11',
                 'null' => false,
             ],
 
@@ -53,6 +52,6 @@ class Users extends Migration
 
     public function down()
     {
-        // $this->forge->dropTable('users');
+        $this->forge->dropTable('users');
     }
 }
