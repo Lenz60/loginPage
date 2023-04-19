@@ -13,9 +13,7 @@ class JwtFilter implements FilterInterface
     {
         $session = \Config\Services::session();
         if (!isset($_COOKIE['COOKIE-SESSION'])) {
-            $session->setFlashdata('message', '<div class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-300 dark:bg-gray-800 dark:text-red-400" role="alert">
-                <span class="font-medium">Session Expired, Please login again</span>
-              </div>');
+            $session->setFlashdata('message', 'Session Expired, Please login again');
             return redirect()->to('/login');
         } else {
             try {

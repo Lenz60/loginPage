@@ -24,7 +24,11 @@ class DashboardController extends BaseController
         $token = $_COOKIE['COOKIE-SESSION'];
         $model = new DashboardModel();
         $result = $model->show($token);
-        $session->set('name', $result['name']);
-        return view('dashboard');
+        $data = [
+            'email' => $result['email'],
+            'name' => $result['name'],
+            'image' => $result['image'],
+        ];
+        return view('dashboard', $data);
     }
 }
