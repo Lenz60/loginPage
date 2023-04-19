@@ -26,10 +26,6 @@ class AuthController extends BaseController
         }
     }
 
-    public function loginIndex()
-    {
-        return view('login');
-    }
 
     public function login()
     {
@@ -43,9 +39,7 @@ class AuthController extends BaseController
         ];
         $result = $model->login($data);
         if ($result == false) {
-            $session->setFlashdata('message', '<div class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-300 dark:bg-gray-800 dark:text-red-400" role="alert">
-                <span class="font-medium">Wrong email or password</span>
-              </div>');
+            $session->setFlashdata('message', 'Incorrect email or password');
             return redirect()->to('/login');
         } else {
             $key = getenv('JWT_SECRET_KEY');
@@ -53,18 +47,16 @@ class AuthController extends BaseController
             if ($decoded_token->is_active == 0) {
                 return redirect()->to('/');
             } else {
-                $session->setFlashdata('message', '<div class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-300 dark:bg-gray-800 dark:text-red-400" role="alert">
-                <span class="font-medium">Email is not activated</span>
-              </div>');
+                $session->setFlashdata('message', 'Email is not activated');
                 return redirect()->to('/login');
             }
         }
     }
-
-    public function registerindex()
+    public function registerIndex()
     {
         return view('register');
     }
+
 
     public function register()
     {
@@ -117,16 +109,23 @@ class AuthController extends BaseController
             ];
             // dd($data['date_created']);
             if ($model->register($data)) {
-                $session->setFlashdata('message', '<div class="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400" role="alert">
-            <span class="font-medium">Account Created !</span> Please login.
-          </div>');
+                $session->setFlashdata('message-success', 'Account Created !');
                 return redirect()->to('/login');
             } else {
-                $session->setFlashdata('message', '<div class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
-                <span class="font-medium">This account is already exists!</span>
-              </div>');
+                $session->setFlashdata('message', 'This account is already exists!');
                 return redirect()->to('/login');
             }
         }
+    }
+
+    public function logout()
+    {
+        $session = \Config\Services::session();
+        setcookie('COOKIE-SESSION', null);
+        $session->setFlashdata(
+            'message-success',
+            'Logout Success!'
+        );
+        return redirect('login');
     }
 }

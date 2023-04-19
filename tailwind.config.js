@@ -2,10 +2,12 @@
 module.exports = {
   content: [
     "./app/Views/*.php",
+    "./app/Controller/*.php",
     "./app/Views/**/*.php",
     "./app/Views/**/**/*.php",
     "./app/Views/**/**/**/*.php",
     "./app/Views/**/**/**/**/*.php",
+    "./app/Controller/*.php",
     "./node_modules/flowbite/**/*.js"
   ],
   theme: {
