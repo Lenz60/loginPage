@@ -39,7 +39,7 @@ class UserModel extends Model
             } else {
                 // dd($email);
                 helper('jwt');
-                $token = createJWT($id, $email, $is_active);
+                $token = createJWT($email, $is_active);
                 $expireCookie = time() + 3600000;
                 setcookie("COOKIE-SESSION", $token, $expireCookie, '/', null, 'null', true);
                 return $token;

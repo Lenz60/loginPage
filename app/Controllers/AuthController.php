@@ -18,8 +18,12 @@ class AuthController extends BaseController
 
     public function index()
     {
-        $data['title'] = 'Login';
-        return view('login', $data);
+        if (!isset($_COOKIE['COOKIE-SESSION'])) {
+            $data['title'] = 'Login';
+            return view('login', $data);
+        } else {
+            return redirect()->to('/');
+        }
     }
 
     public function loginIndex()
@@ -42,7 +46,7 @@ class AuthController extends BaseController
             $session->setFlashdata('message', '<div class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-300 dark:bg-gray-800 dark:text-red-400" role="alert">
                 <span class="font-medium">Wrong email or password</span>
               </div>');
-            return redirect()->to('/auth');
+            return redirect()->to('/login');
         } else {
             $key = getenv('JWT_SECRET_KEY');
             $decoded_token = JWT::decode($result, new Key($key, 'HS256'));
@@ -52,7 +56,7 @@ class AuthController extends BaseController
                 $session->setFlashdata('message', '<div class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-300 dark:bg-gray-800 dark:text-red-400" role="alert">
                 <span class="font-medium">Email is not activated</span>
               </div>');
-                return redirect()->to('/auth');
+                return redirect()->to('/login');
             }
         }
     }
@@ -116,12 +120,12 @@ class AuthController extends BaseController
                 $session->setFlashdata('message', '<div class="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400" role="alert">
             <span class="font-medium">Account Created !</span> Please login.
           </div>');
-                return redirect()->to('/auth');
+                return redirect()->to('/login');
             } else {
                 $session->setFlashdata('message', '<div class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
                 <span class="font-medium">This account is already exists!</span>
               </div>');
-                return redirect()->to('/auth');
+                return redirect()->to('/login');
             }
         }
     }
