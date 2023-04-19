@@ -22,7 +22,7 @@ class AuthController extends BaseController
             $data['title'] = 'Login';
             return view('login', $data);
         } else {
-            return redirect()->to('/');
+            return redirect()->to('/dashboard');
         }
     }
 
@@ -55,7 +55,12 @@ class AuthController extends BaseController
     }
     public function registerIndex()
     {
-        return view('register');
+        if (!isset($_COOKIE['COOKIE-SESSION'])) {
+            $data['title'] = 'Register';
+            return view('register', $data);
+        } else {
+            return redirect()->to('/dashboard');
+        }
     }
 
 
