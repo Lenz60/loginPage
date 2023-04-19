@@ -44,8 +44,9 @@ class AuthController extends BaseController
         } else {
             $key = getenv('JWT_SECRET_KEY');
             $decoded_token = JWT::decode($result, new Key($key, 'HS256'));
+            //change it to 1 later
             if ($decoded_token->is_active == 0) {
-                return redirect()->to('/');
+                return redirect()->to('/dashboard');
             } else {
                 $session->setFlashdata('message', 'Email is not activated');
                 return redirect()->to('/login');
