@@ -25,6 +25,7 @@ class DashboardModel extends Model
                 'email' => $data['email'],
                 'name' => $data['name'],
                 'image' => $data['image'],
+                'date_created' => $data['date_created']
             ];
             return $data2;
         }

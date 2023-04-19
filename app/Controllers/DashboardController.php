@@ -28,6 +28,7 @@ class DashboardController extends BaseController
             'email' => $result['email'],
             'name' => $result['name'],
             'image' => $result['image'],
+            'date_created' => $result['date_created']
         ];
         return view('dashboard', $data);
     }

@@ -55,17 +55,20 @@
         <!-- Content Row -->
         <div class="row">
 
-            <!-- Approach -->
+            <!-- User Detail -->
             <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Development Approach</h6>
-                </div>
                 <div class="card-body">
-                    <p>SB Admin 2 makes extensive use of Bootstrap 4 utility classes in order to reduce
-                        CSS bloat and poor page performance. Custom CSS classes are used to create
-                        custom components and custom utility classes.</p>
-                    <p class="mb-0">Before working with this theme, you should become familiar with the
-                        Bootstrap framework, especially the utility classes.</p>
+                    <div class="row">
+                        <div class="col">
+                            <img src="/assets/img/<?= $image ?>" width="200" height="200">
+                        </div>
+                        <div class="col">
+                            <h3 class="card-title"><?= $name; ?></h3>
+                            <p><?= $email; ?></p>
+                            <p>Registered since <?= date('d F Y', $date_created); ?></p>
+                        </div>
+
+                    </div>
                 </div>
             </div>
         </div>
