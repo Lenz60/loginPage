@@ -39,6 +39,7 @@ $routes->get('/register', 'AuthController::registerIndex');
 $routes->post('/register', 'AuthController::register');
 $routes->get('/dashboard', 'DashboardController');
 $routes->post('/auth/verify', 'AuthController::verify');
+$routes->get('/auth/verify', 'AuthController::verify');
 $routes->post('/auth/reset', 'AuthController::resetPassword');
 $routes->get('/auth/reset', 'AuthController::resetPassword');
 $routes->get('/auth/forgot', 'AuthController::forgotPassword');
