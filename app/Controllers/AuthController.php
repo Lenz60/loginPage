@@ -2,10 +2,11 @@
 
 namespace App\Controllers;
 
-use App\Models\UserModel;
-use App\Controllers\BaseController;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
+use App\Models\UserModel;
+use App\Models\TokenModel;
+use App\Controllers\BaseController;
 
 class AuthController extends BaseController
 {
@@ -45,7 +46,9 @@ class AuthController extends BaseController
             $key = getenv('JWT_SECRET_KEY');
             $decoded_token = JWT::decode($result, new Key($key, 'HS256'));
             //change it to 1 later
-            if ($decoded_token->is_active == 0) {
+            if ($decoded_token->is_active == 1) {
+                $expireCookie = time() + 3600000;
+                setcookie("COOKIE-SESSION", $result, $expireCookie, '/', null, 'null', true);
                 return redirect()->to('/dashboard');
             } else {
                 $session->setFlashdata('message', 'Email is not activated');
@@ -67,7 +70,9 @@ class AuthController extends BaseController
     public function register()
     {
         $session = \Config\Services::session();
+        $emailActivation = \Config\Services::email();
         $model = new UserModel();
+        $tokenModel = new TokenModel();
         $validate = $this->validate([
             'name' => [
                 'rules' => 'required|min_length[5]',
@@ -116,7 +121,7 @@ class AuthController extends BaseController
             $image = $this->request->getFile('avatar');
 
             $imageName = $image->getRandomName();
-            $image->move('assets/img/avatar', $imageName);
+
             // dd($image);
 
             $data = [
@@ -128,14 +133,75 @@ class AuthController extends BaseController
                 'date_created' => time(),
             ];
             // dd($data['date_created']);
-            if ($model->register($data)) {
-                $session->setFlashdata('message-success', 'Account Created !');
-                return redirect()->to('/login');
+            $register = $model->register($data);
+            if ($register) {
+                //Save the avatar if the user is registered
+                $image->move('assets/img/avatar', $imageName);
+                //Generate Activation Token
+                $activationToken = $model->generateActivationToken();
+
+                //Save the activation token to database 
+                $user_token = [
+                    'email' => $email,
+                    'token' => $activationToken,
+                    'date_created' => time(),
+                ];
+                if ($tokenModel->saveToken($user_token)) {
+                    //Send Confirmation email with token
+                    $emailActivation->setFrom('raflytestproject@gmail.com', 'Rafly Andrian Wicaksana');
+                    $emailActivation->setTo($email);
+                    $emailActivation->setSubject('Confirmation Email');
+                    $emailActivation->setMessage(
+
+                        '<h1>Hello ' . $name . '</h1>
+                        <p>Recently you registered to our site, to activate your account, please click link below</p>
+                        <a href="' . base_url() . 'auth/verify?email=' . $email . '&token=' . urlencode($activationToken) . '">Activate</a>'
+
+                    );
+                    if ($emailActivation->send()) {
+                        $session->setFlashdata('message-success', 'Account Created !, Check your email for confirmation email.');
+                        return redirect()->to('/login');
+                    } else {
+                        echo $this->email->print_debugger();
+                        die;
+                    }
+                } else {
+                    $session->setFlashdata('message', 'Error saving token to database');
+                    return redirect()->to('/login');
+                }
             } else {
                 $session->setFlashdata('message', 'This account is already exists!');
                 return redirect()->to('/login');
             }
         }
+    }
+
+    public function verify()
+    {
+        //change later
+        $session = \Config\Services::session();
+        $data['title'] = 'Verify Account';
+        $tokenModel = new TokenModel();
+        $userModel = new UserModel();
+        $email = $this->request->getVar('email');
+        $token = urldecode($this->request->getVar('token'));
+        $data = [
+            'email' => $email,
+            'token' => $token
+        ];
+        $result = $tokenModel->checkToken($data);
+
+        if ($result) {
+            if ($userModel->activateUser($email)) {
+                $session->setFlashdata('message-success', 'The account is activated!');
+                return redirect()->to('/login');
+            }
+        } else {
+            $session->setFlashdata('message', 'Token Invalid');
+            return redirect()->to('/login');
+        }
+
+        return view('login', $data);
     }
 
     public function logout()

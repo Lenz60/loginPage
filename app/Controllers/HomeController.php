@@ -11,7 +11,6 @@ class HomeController extends BaseController
 {
     public function __construct()
     {
-        $this->model = new ProfileModel();
     }
     public function index()
     {
@@ -22,11 +21,11 @@ class HomeController extends BaseController
         return view('home');
     }
 
-    public function show()
-    {
-        $token = $_COOKIE['COOKIE-SESSION'];
-        $model = new ProfileModel();
-        $result = $model->show($token);
-        print_r($result);
-    }
+    // public function show()
+    // {
+    //     $token = $_COOKIE['COOKIE-SESSION'];
+    //     $model = new ProfileModel();
+    //     $result = $model->show($token);
+    //     print_r($result);
+    // }
 }

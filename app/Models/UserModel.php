@@ -9,7 +9,7 @@ class UserModel extends Model
 {
     protected $table            = 'users';
     protected $primaryKey       = 'id';
-    protected $allowedFields    = ['name', 'email', 'password', 'image', 'date_created'];
+    protected $allowedFields    = ['name', 'email', 'password', 'image', 'date_created', 'is_active'];
 
     public function encryptPass($password)
     {
@@ -40,15 +40,11 @@ class UserModel extends Model
                 // dd($email);
                 helper('jwt');
                 $token = createJWT($email, $is_active);
-                $expireCookie = time() + 3600000;
-                setcookie("COOKIE-SESSION", $token, $expireCookie, '/', null, 'null', true);
                 return $token;
             }
             // return $data;
         }
     }
-
-
     public function register($dataInserted)
     {
         $model = new UserModel();
@@ -57,6 +53,27 @@ class UserModel extends Model
         $data = $builder->where('email', $email)->first();
         if (!$data) {
             $model->save($dataInserted);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function generateActivationToken()
+    {
+        $salt = getenv('SALT1');
+        $token = base64_encode($salt . random_bytes(32));
+        return $token;
+    }
+
+    public function activateUser($email)
+    {
+        $model = new UserModel();
+        $builder = $this->table('users');
+        $builder->set('is_active', 1);
+        $builder->where('email', $email);
+        $result = $builder->update();
+        if ($result) {
             return true;
         } else {
             return false;
