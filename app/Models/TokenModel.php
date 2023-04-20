@@ -41,4 +41,17 @@ class TokenModel extends Model
             }
         }
     }
+
+    public function deleteToken($token)
+    {
+        $model = new TokenModel();
+        $builder = $this->table('user_token');
+        $data = $builder->where('token', $token);
+        if (!$data) {
+            return false;
+        } else {
+            $builder->delete();
+            return true;
+        }
+    }
 }

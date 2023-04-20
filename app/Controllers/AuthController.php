@@ -190,10 +190,12 @@ class AuthController extends BaseController
             'token' => $token
         ];
         $result = $tokenModel->checkToken($data);
+        // dd($token);
 
         if ($result) {
             if ($userModel->activateUser($email)) {
                 $session->setFlashdata('message-success', 'The account is activated!');
+                $tokenModel->deleteToken($token);
                 return redirect()->to('/login');
             }
         } else {
