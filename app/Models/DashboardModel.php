@@ -13,7 +13,7 @@ class DashboardModel extends Model
 
     public function show($token)
     {
-        $model = new ProfileModel();
+        $model = new DashboardModel();
         $key = getenv('JWT_SECRET_KEY');
         $decoded_token = JWT::decode($_COOKIE['COOKIE-SESSION'], new Key($key, 'HS256'));
         $builder = $this->table('users');

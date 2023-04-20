@@ -94,22 +94,36 @@ class AuthController extends BaseController
                     'matches' => 'The password is not match'
                 ]
             ],
+            'avatar' => [
+                'rules' => 'uploaded[avatar]|is_image[avatar]|max_size[avatar,500]|mime_in[avatar,image/jpg,image/jpeg,image/png,image/webp]|max_dims[avatar,1000,1000]',
+                'errors' => [
+                    'uploaded' => 'Please choose an avatar',
+                ]
+            ],
         ]);
 
         if (!$validate) {
-            return view('register', ['validation' => $this->validator]);
+            $data = [
+                'title' => 'Register',
+                'validation' => $this->validator
+            ];
+            return view('register', $data);
         } else {
 
             $name = $this->request->getVar('name');
             $email = $this->request->getVar('email');
             $password = $this->request->getVar('password');
-            $image = 'default.jpg';
+            $image = $this->request->getFile('avatar');
+
+            $imageName = $image->getRandomName();
+            $image->move('assets/img/avatar', $imageName);
+            // dd($image);
 
             $data = [
                 'name' => $name,
                 'email' => $email,
                 'password' => $model->encryptPass($password),
-                'image' => $image,
+                'image' => $imageName,
                 'is_active' => 0,
                 'date_created' => time(),
             ];

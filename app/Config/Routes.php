@@ -38,6 +38,7 @@ $routes->post('/login', 'AuthController::login');
 $routes->get('/register', 'AuthController::registerIndex');
 $routes->post('/register', 'AuthController::register');
 $routes->get('/dashboard', 'DashboardController::show');
+$routes->get('/profile', 'ProfileController');
 
 /*
  * --------------------------------------------------------------------

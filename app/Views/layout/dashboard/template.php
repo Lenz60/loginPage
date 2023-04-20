@@ -33,7 +33,7 @@
                 <div class="sidebar-brand-icon">
                     <i class="fa-solid fa-seedling"></i>
                 </div>
-                <div class="sidebar-brand-text mx-3">User Database</div>
+                <div class="sidebar-brand-text mx-3">User Dashboard</div>
             </a>
 
             <!-- Divider -->
@@ -41,39 +41,9 @@
 
             <!-- Nav Item - Dashboard -->
             <li class="nav-item active">
-                <a class="nav-link" href="index.html">
+                <a class="nav-link" href="/dashboard">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span></a>
-            </li>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider">
-
-            <!-- Heading -->
-            <div class="sidebar-heading">
-                Profile
-            </div>
-
-            <!-- Nav Item - Tables -->
-            <li class="nav-item">
-                <a class="nav-link" href="tables.html">
-                    <i class="fa-solid fa-circle-user"></i>
-                    <span>Profile</span></a>
-            </li>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider">
-
-            <!-- Heading -->
-            <div class="sidebar-heading">
-                Configurations
-            </div>
-
-            <!-- Nav Item - Tables -->
-            <li class="nav-item">
-                <a class="nav-link" href="tables.html">
-                    <i class="fa-solid fa-gears"></i>
-                    <span>Settings</span></a>
             </li>
 
             <!-- Divider -->

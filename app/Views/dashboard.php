@@ -19,19 +19,10 @@
             <li class="nav-item dropdown no-arrow">
                 <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <span class="mr-2 d-none d-lg-inline text-gray-600 small"><?= $name ?></span>
-                    <img class="img-profile rounded-circle" src="/assets/img/<?= $image ?>">
+                    <img class="img-profile rounded-circle" src="/assets/img/avatar/<?= $image ?>">
                 </a>
                 <!-- Dropdown - User Information -->
                 <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-                    <a class="dropdown-item" href="/profile">
-                        <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                        Profile
-                    </a>
-                    <a class="dropdown-item" href="/settings">
-                        <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
-                        Settings
-                    </a>
-                    <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="/logout" data-toggle="modal" data-target="#logoutModal">
                         <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                         Logout
@@ -60,7 +51,7 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col">
-                            <img src="/assets/img/<?= $image ?>" width="200" height="200">
+                            <img src="/assets/img/avatar/<?= $image ?>" width="200" height="200">
                         </div>
                         <div class="col">
                             <h3 class="card-title"><?= $name; ?></h3>
