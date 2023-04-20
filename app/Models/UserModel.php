@@ -79,4 +79,20 @@ class UserModel extends Model
             return false;
         }
     }
+
+    public function resetPass($dataInserted)
+    {
+        $model = new UserModel();
+        $email = $dataInserted['email'];
+        $password = $dataInserted['password'];
+        $builder = $this->table('users');
+        $builder->set('password', $password);
+        $builder->where('email', $email);
+        $result = $builder->update();
+        if ($result) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

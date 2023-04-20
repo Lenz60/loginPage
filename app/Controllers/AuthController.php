@@ -71,7 +71,7 @@ class AuthController extends BaseController
     {
         $session = \Config\Services::session();
         $emailActivation = \Config\Services::email();
-        $model = new UserModel();
+        $userModel = new UserModel();
         $tokenModel = new TokenModel();
         $validate = $this->validate([
             'name' => [
@@ -104,7 +104,7 @@ class AuthController extends BaseController
                 'errors' => [
                     'uploaded' => 'Please choose an avatar',
                 ]
-            ],
+            ]
         ]);
 
         if (!$validate) {
@@ -127,18 +127,18 @@ class AuthController extends BaseController
             $data = [
                 'name' => $name,
                 'email' => $email,
-                'password' => $model->encryptPass($password),
+                'password' => $userModel->encryptPass($password),
                 'image' => $imageName,
                 'is_active' => 0,
                 'date_created' => time(),
             ];
             // dd($data['date_created']);
-            $register = $model->register($data);
+            $register = $userModel->register($data);
             if ($register) {
                 //Save the avatar if the user is registered
                 $image->move('assets/img/avatar', $imageName);
                 //Generate Activation Token
-                $activationToken = $model->generateActivationToken();
+                $activationToken = $userModel->generateActivationToken();
 
                 //Save the activation token to database 
                 $user_token = [
@@ -178,7 +178,6 @@ class AuthController extends BaseController
 
     public function verify()
     {
-        //change later
         $session = \Config\Services::session();
         $data['title'] = 'Verify Account';
         $tokenModel = new TokenModel();
@@ -204,6 +203,87 @@ class AuthController extends BaseController
         }
 
         return view('login', $data);
+    }
+
+    public function forgotPassword()
+    {
+        //Todo : Check the email first 
+        //if it exsists, send reset password email
+        //if its not exists, throw flash message
+        $model = new UserModel();
+        $data = [
+            'title' => 'Forgot your password'
+        ];
+        return view('forgot', $data);
+    }
+
+
+    public function resetPassword()
+    {
+        //Check token from email
+        //If it exists, check the token
+        //If not throw flash message and go back to login
+        //If the token is invalid throwflash message and go back to login
+        //If the token is valid proceed to change the current user's password
+        //If the pass change is successful delete the token from db and go back to login with success message
+        $session = \Config\Services::session();
+        //check if it cointains token
+        if (!isset($_POST['token'])) {
+            $session->setFlashdata('message', 'Token Invalid');
+            return redirect()->to('/login');
+        } else {
+            $validate = $this->validate([
+                'reset-password' => [
+                    'rules' => 'required|min_length[3]',
+                    'errors' => [
+                        'required' => 'Please enter your password'
+                    ]
+                ],
+                'reset-confirm-password' => [
+                    'rules' => 'required|min_length[3]|matches[password]',
+                    'errors' => [
+                        'required' => 'Please enter your password',
+                        'matches' => 'The password is not match'
+                    ]
+                ]
+            ]);
+            //validate the form
+            if (!$validate) {
+                $data = [
+                    'title' => 'Reset Password',
+                    'validation' => $this->validator
+                ];
+                return view('reset', $data);
+            } else {
+                $tokenModel = new TokenModel();
+                $userModel = new UserModel();
+                $email = $this->request->getVar('email');
+                $token = urldecode($this->request->getVar('token'));
+
+                $data = [
+                    'email' => $email,
+                    'token' => $token
+                ];
+                //check the token first
+                $result = $tokenModel->checkToken($data);
+                if ($result) {
+                    $password = $this->request->getVar('reset-password');
+                    $reset = [
+                        'email' => $email,
+                        'password' => $userModel->encryptPass($password)
+                    ];
+                    $resultReset = $userModel->resetPass($data);
+                    if ($resultReset) {
+                        $session->setFlashdata('message-success', 'Password reset success!');
+                        $tokenModel->deleteToken($token);
+                        return redirect()->to('/login');
+                    }
+                } else {
+                    $session->setFlashdata('message', 'Token Invalid');
+                    return redirect()->to('/login');
+                }
+            }
+        }
     }
 
     public function logout()
