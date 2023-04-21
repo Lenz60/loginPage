@@ -219,10 +219,12 @@ class AuthController extends BaseController
 
     public function forgotIndex()
     {
-        $data = [
-            'title' => 'Forgot password'
-        ];
-        return view('forgot', $data);
+        if (!isset($_COOKIE['COOKIE-SESSION'])) {
+            $data['title'] = 'Forgot Password';
+            return view('forgot', $data);
+        } else {
+            return redirect()->to('/dashboard');
+        }
     }
 
     public function forgotPassword()
