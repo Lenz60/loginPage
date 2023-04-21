@@ -1,62 +1,27 @@
-# CodeIgniter 4 Application Starter
+# CodeIgniter 4 Login Page Application
 
-## What is CodeIgniter?
+## What is this?
 
-CodeIgniter is a PHP full-stack web framework that is light, fast, flexible and secure.
-More information can be found at the [official site](https://codeigniter.com).
+This is a simple functional login page that uses Json Web Token.
+this is also built in smtp gmail too.
 
-This repository holds a composer-installable app starter.
-It has been built from the
-[development repository](https://github.com/codeigniter4/CodeIgniter4).
+## What are the features ? Whats in it ?
+### The UI/UX
+1. The login page built with [Tailwindcss](https://tailwindcss.com/), it uses [laravel-mix](https://laravel-mix.com/) for the integration 
+2. The dashboard is built with [SBadmin2](https://startbootstrap.com/theme/sb-admin-2) 
+### The Backend
+1. It built in with JWT or Json Web Token for the login and Cookie
+2. It built with Gmail SMTP to send account activation confrimation and forgot password **make sure to check the spam folder in your mail** because gmail treat the SMTP as dangerous email even though it's their SMTP
+3. Salted Passwords! the password is salted before it get encoded, the salt is declared in `.env` file
+4. Upload avatar or profile pictures when registering new account
 
-More information about the plans for version 4 can be found in [CodeIgniter 4](https://forum.codeigniter.com/forumdisplay.php?fid=28) on the forums.
+## Installation
 
-The user guide corresponding to the latest version of the framework can be found
-[here](https://codeigniter4.github.io/userguide/).
+1. Rename the `env` file to `.env`
+2. Update the composer packages by running `composer update` in the console inside of directory of the project
+3. Update the npm library by running `npm update` in the console inside of directory of the project
+4. Run `npx mix` to ensure tailwindcss do its work!
+5. Run the development server via `php spark serve`
+6. To migrate the databases, run `php spark migrate` or `php spark migrate:refresh`
 
-## Installation & updates
-
-`composer create-project codeigniter4/appstarter` then `composer update` whenever
-there is a new release of the framework.
-
-When updating, check the release notes to see if there are any changes you might need to apply
-to your `app` folder. The affected files can be copied or merged from
-`vendor/codeigniter4/framework/app`.
-
-## Setup
-
-Copy `env` to `.env` and tailor for your app, specifically the baseURL
-and any database settings.
-
-## Important Change with index.php
-
-`index.php` is no longer in the root of the project! It has been moved inside the *public* folder,
-for better security and separation of components.
-
-This means that you should configure your web server to "point" to your project's *public* folder, and
-not to the project root. A better practice would be to configure a virtual host to point there. A poor practice would be to point your web server to the project root and expect to enter *public/...*, as the rest of your logic and the
-framework are exposed.
-
-**Please** read the user guide for a better explanation of how CI4 works!
-
-## Repository Management
-
-We use GitHub issues, in our main repository, to track **BUGS** and to track approved **DEVELOPMENT** work packages.
-We use our [forum](http://forum.codeigniter.com) to provide SUPPORT and to discuss
-FEATURE REQUESTS.
-
-This repository is a "distribution" one, built by our release preparation script.
-Problems with it can be raised on our forum, or as issues in the main repository.
-
-## Server Requirements
-
-PHP version 7.4 or higher is required, with the following extensions installed:
-
-- [intl](http://php.net/manual/en/intl.requirements.php)
-- [mbstring](http://php.net/manual/en/mbstring.installation.php)
-
-Additionally, make sure that the following extensions are enabled in your PHP:
-
-- json (enabled by default - don't turn it off)
-- [mysqlnd](http://php.net/manual/en/mysqlnd.install.php) if you plan to use MySQL
-- [libcurl](http://php.net/manual/en/curl.requirements.php) if you plan to use the HTTP\CURLRequest library
+Thats all, Thankyou
