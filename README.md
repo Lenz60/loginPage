@@ -15,7 +15,7 @@ this is also built in smtp gmail too.
 3. Salted Passwords! the password is salted before it get encoded, the salt is declared in `.env` file
 4. Upload avatar or profile pictures when registering new account
 
-## Installation & updates
+## Installation
 
 1. Rename the `env` file to `.env`
 2. Update the composer packages by running `composer update` in the console inside of directory of the project
