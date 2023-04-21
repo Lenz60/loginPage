@@ -10,7 +10,22 @@
                     <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl ">
                         Input your email
                     </h1>
-                    <form class="space-y-4 md:space-y-6" method="POST" action="/auth/reset" enctype="multipart/form-data">
+                    <?php
+                    if (session()->getFlashdata('message-success')) {
+                    ?>
+                        <div class="bg-green-200 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+                            <span class="block sm:inline"><?= session()->getFlashdata('message-success'); ?></span>
+                        </div>
+                    <?php
+                    } elseif (session()->getFlashdata('message')) {
+                    ?>
+                        <div class="bg-red-200 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                            <span class="block sm:inline"><?= session()->getFlashdata('message'); ?></span>
+                        </div>
+                    <?php
+                    }
+                    ?>
+                    <form class="space-y-4 md:space-y-6" method="POST" action="/auth/forgot" enctype="multipart/form-data">
                         <?= csrf_field(); ?>
                         <div>
                             <label for="forgot-email" class="block mb-2 text-sm font-medium text-gray-900 ">Your email</label>

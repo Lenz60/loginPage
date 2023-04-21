@@ -144,6 +144,7 @@ class AuthController extends BaseController
                 $user_token = [
                     'email' => $email,
                     'token' => $activationToken,
+                    'type' => 'register',
                     'date_created' => time(),
                 ];
                 if ($tokenModel->saveToken($user_token)) {
@@ -191,12 +192,20 @@ class AuthController extends BaseController
         $result = $tokenModel->checkToken($data);
         // dd($token);
 
-        if ($result) {
+        if ($result == 'register') {
             if ($userModel->activateUser($email)) {
                 $session->setFlashdata('message-success', 'The account is activated!');
                 $tokenModel->deleteToken($token);
                 return redirect()->to('/login');
             }
+        } else if ($result == 'forgot') {
+            $data = [
+                'title' => 'Forgot Password',
+                'email' => $email,
+                'token' => $token
+            ];
+            $session->set($data);
+            return view('reset', $data);
         } else {
             $session->setFlashdata('message', 'Token Invalid');
             return redirect()->to('/login');
@@ -205,86 +214,209 @@ class AuthController extends BaseController
         return view('login', $data);
     }
 
+    public function forgotIndex()
+    {
+        $data = [
+            'title' => 'Forgot password'
+        ];
+        return view('forgot', $data);
+    }
+
     public function forgotPassword()
     {
         //Todo : Check the email first 
         //if it exsists, send reset password email
         //if its not exists, throw flash message
-        $model = new UserModel();
-        $data = [
-            'title' => 'Forgot your password'
-        ];
-        return view('forgot', $data);
-    }
+        $session = \Config\Services::session();
+        $emailActivation = \Config\Services::email();
+        $userModel = new UserModel();
+        $tokenModel = new TokenModel();
+        $email = $this->request->getVar('forgot-email');
+        $result = $userModel->forgotPass($email);
+        if ($result) {
+            //Generate Activation Token
+            $activationToken = $userModel->generateActivationToken();
 
+            //Save the activation token to database 
+            $forgot_token = [
+                'email' => $email,
+                'token' => $activationToken,
+                'type' => 'forgot',
+                'date_created' => time(),
+            ];
+            if ($tokenModel->saveToken($forgot_token)) {
+                $name = $userModel->getName($email);
+                if ($name) {
+                    //Send Confirmation email with token
+                    $emailActivation->setFrom('raflytestproject@gmail.com', 'Rafly Andrian Wicaksana');
+                    $emailActivation->setTo($email);
+                    $emailActivation->setSubject('Reset Password Confirmation');
+                    $emailActivation->setMessage(
+
+                        '<h1>Hello ' . $name . '</h1>
+                        <p>Recently you requested for password change, please click link below to reset your password</p>
+                        <a href="' . base_url() . 'auth/verify?email=' . $email . '&token=' . urlencode($activationToken) . '">Reset</a>'
+
+                    );
+                    if ($emailActivation->send()) {
+                        $session->setFlashdata('message-success', 'Check your email for confirmation email.');
+                        return redirect()->to('/login');
+                    } else {
+                        echo $this->email->print_debugger();
+                        die;
+                    }
+                } else {
+                }
+            } else {
+                $session->setFlashdata('message', 'Error saving token to database');
+                return redirect()->to('/login');
+            }
+        } else {
+            $session->setFlashdata('message', 'There is no account with that email address');
+            return redirect()->to('/auth/forgot');
+        }
+    }
 
     public function resetPassword()
     {
-        //Check token from email
-        //If it exists, check the token
-        //If not throw flash message and go back to login
-        //If the token is invalid throwflash message and go back to login
-        //If the token is valid proceed to change the current user's password
-        //If the pass change is successful delete the token from db and go back to login with success message
         $session = \Config\Services::session();
-        //check if it cointains token
-        if (!isset($_POST['token'])) {
-            $session->setFlashdata('message', 'Token Invalid');
-            return redirect()->to('/login');
-        } else {
-            $validate = $this->validate([
-                'reset-password' => [
-                    'rules' => 'required|min_length[3]',
-                    'errors' => [
-                        'required' => 'Please enter your password'
-                    ]
-                ],
-                'reset-confirm-password' => [
-                    'rules' => 'required|min_length[3]|matches[password]',
-                    'errors' => [
-                        'required' => 'Please enter your password',
-                        'matches' => 'The password is not match'
-                    ]
+        $userModel = new UserModel();
+        $tokenModel = new TokenModel();
+        $email = $session->get('email');
+        $password = $this->request->getVar('reset-password');
+        $token = $session->get('token');
+        // dd($password);
+        // validate the form
+        $validate = $this->validate([
+            'reset-password' => [
+                'rules' => 'required|min_length[3]',
+                'errors' => [
+                    'required' => 'Please enter your password'
                 ]
-            ]);
-            //validate the form
-            if (!$validate) {
-                $data = [
-                    'title' => 'Reset Password',
-                    'validation' => $this->validator
-                ];
-                return view('reset', $data);
+            ],
+            'reset-confirm-password' => [
+                'rules' => 'required|min_length[3]|matches[reset-password]',
+                'errors' => [
+                    'required' => 'Please enter your password',
+                    'matches' => 'The password is not match'
+                ]
+            ]
+        ]);
+        if (!$validate) {
+            $data = [
+                'title' => 'Reset Password',
+                'email' => $email,
+                'validation' => $this->validator
+            ];
+            return view('reset', $data);
+        } else {
+            $data = [
+                'email' => $email,
+                'password' => $userModel->encryptPass($password)
+            ];
+            $result = $userModel->resetPass($data);
+            if ($result) {
+                $session->setFlashdata('message-success', 'Password Changed!');
+                $tokenModel->deleteToken($token);
+                return redirect()->to('/login');
             } else {
-                $tokenModel = new TokenModel();
-                $userModel = new UserModel();
-                $email = $this->request->getVar('email');
-                $token = urldecode($this->request->getVar('token'));
-
-                $data = [
-                    'email' => $email,
-                    'token' => $token
-                ];
-                //check the token first
-                $result = $tokenModel->checkToken($data);
-                if ($result) {
-                    $password = $this->request->getVar('reset-password');
-                    $reset = [
-                        'email' => $email,
-                        'password' => $userModel->encryptPass($password)
-                    ];
-                    $resultReset = $userModel->resetPass($data);
-                    if ($resultReset) {
-                        $session->setFlashdata('message-success', 'Password reset success!');
-                        $tokenModel->deleteToken($token);
-                        return redirect()->to('/login');
-                    }
-                } else {
-                    $session->setFlashdata('message', 'Token Invalid');
-                    return redirect()->to('/login');
-                }
+                $session->setFlashdata('message', 'Password Reset Failed!');
+                return redirect()->to('/login');
             }
         }
+        // if (!$this->request->getVar('email') | !$this->request->getVar('email')) {
+        //     $session->setFlashdata('message', 'Token Invalid');
+        //     return redirect()->to('/login');
+        // } else {
+        // }
     }
+
+
+    // public function checkReset()
+    // {
+    //     $session = \Config\Services::session();
+    //     $incomingToken = urldecode($this->request->getVar('token'));
+    //     $incomingEmail = $this->request->getVar('email');
+    //     if (!$incomingToken || !$incomingEmail) {
+    //         $session->setFlashdata('message', 'Token input invalid');
+    //         return redirect()->to('/login');
+    //     } else {
+    //         $tokenModel = new TokenModel();
+    //         $userModel = new UserModel();
+    //         $email = $incomingEmail;
+    //         $token = $incomingToken;
+    //         $data = [
+    //             'email' => $email,
+    //             'token' => $token
+    //         ];
+    //         //check the token first
+    //         $result = $tokenModel->checkToken($data);
+    //         if (!$result) {
+    //             $session->setFlashdata('message', 'Token check invalid');
+    //             return redirect()->to('/login');
+    //         } else {
+    //             return redirect()->to('/auth/reset');
+    //         }
+    //     }
+    // }
+
+
+    // public function resetIndex()
+    // {
+    //     //Check token from email
+    //     //If it exists, check the token
+    //     //If not throw flash message and go back to login
+    //     //If the token is invalid throwflash message and go back to login
+    //     //If the token is valid proceed to change the current user's password
+    //     //If the pass change is successful delete the token from db and go back to login with success message
+    //     //validate the form
+    //     $validate = $this->validate([
+    //         'reset-password' => [
+    //             'rules' => 'required|min_length[3]',
+    //             'errors' => [
+    //                 'required' => 'Please enter your password'
+    //             ]
+    //         ],
+    //         'reset-confirm-password' => [
+    //             'rules' => 'required|min_length[3]|matches[password]',
+    //             'errors' => [
+    //                 'required' => 'Please enter your password',
+    //                 'matches' => 'The password is not match'
+    //             ]
+    //         ]
+    //     ]);
+    //     if (!$validate) {
+    //         $data = [
+    //             'title' => 'Reset Password',
+    //             'validation' => $this->validator
+    //         ];
+    //         return view('reset', $data);
+    //     } else {
+    //         return view('reset');
+    //     }
+    // }
+
+    // public function resetPassword()
+    // {
+    //     $userModel = new UserModel();
+    //     $tokenModel = new TokenModel();
+    //     $session = \Config\Services::session();
+    //     $token = $data['token'];
+    //     $dataReset = [
+    //         'email' => $data['email'],
+    //         'password' => $data['password'],
+    //     ];
+    //     $resultReset = $userModel->resetPass($dataReset);
+    //     if ($resultReset) {
+    //         $session->setFlashdata('message-success', 'Password reset success!');
+    //         $tokenModel->deleteToken($token);
+    //         return redirect()->to('/login');
+    //     } else {
+    //         $session->setFlashdata('message', 'Invalid email, Password reset failed!');
+    //         $tokenModel->deleteToken($token);
+    //         return redirect()->to('/auth/reset');
+    //     }
+    // }
 
     public function logout()
     {

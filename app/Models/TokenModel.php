@@ -8,7 +8,7 @@ class TokenModel extends Model
 {
     protected $table            = 'user_token';
     protected $primaryKey       = 'id';
-    protected $allowedFields    = ['email', 'token', 'date_created'];
+    protected $allowedFields    = ['email', 'token', 'type', 'date_created'];
 
     public function saveToken($dataInserted)
     {
@@ -20,7 +20,10 @@ class TokenModel extends Model
             $model->save($dataInserted);
             return true;
         } else {
-            return false;
+            $builder->where('email', $dataInserted['email']);
+            $builder->delete();
+            $builder->save($dataInserted);
+            return true;
         }
     }
 
@@ -37,7 +40,7 @@ class TokenModel extends Model
             if ($data['token'] != $token) {
                 return false;
             } else {
-                return true;
+                return $data['type'];
             }
         }
     }

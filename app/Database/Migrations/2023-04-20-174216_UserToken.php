@@ -25,6 +25,11 @@ class UserToken extends Migration
                 'constraint' => '255',
                 'null' => false,
             ],
+            'type' => [
+                'type' => 'VARCHAR',
+                'constraint' => '255',
+                'null' => false,
+            ],
             'date_created' => [
                 'type' => 'INT',
                 'null' => false,

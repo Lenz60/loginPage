@@ -59,10 +59,23 @@ class UserModel extends Model
         }
     }
 
+    public function getName($email)
+    {
+        $model = new UserModel();
+        $builder = $this->table('users');
+        $data = $builder->where('email', $email)->first();
+        if (!$data) {
+            return false;
+        } else {
+            return $data['name'];
+        }
+    }
+
     public function generateActivationToken()
     {
+        helper('text');
         $salt = getenv('SALT1');
-        $token = base64_encode($salt . random_bytes(32));
+        $token = base64_encode($salt . random_string('alnum', 64));
         return $token;
     }
 
@@ -77,6 +90,19 @@ class UserModel extends Model
             return true;
         } else {
             return false;
+        }
+    }
+
+    public function forgotPass($email)
+    {
+        //Check if the email is in database
+        $model = new UserModel();
+        $builder = $this->table('users');
+        $data = $builder->where('email', $email)->first();
+        if (!$data) {
+            return false;
+        } else {
+            return true;
         }
     }
 

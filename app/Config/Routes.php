@@ -29,9 +29,9 @@ $routes->set404Override();
 
 // We get a performance increase by specifying the default
 // route since we don't have to scan directories.
-$routes->get('/', 'HomeController::show');
+$routes->get('/', 'DashboardController');
 $routes->get('/home', 'HomeController');
-$routes->post('/', 'HomeController::show');
+$routes->post('/', 'DashboardController');
 $routes->get('/login', 'AuthController');
 $routes->get('/logout', 'AuthController::logout');
 $routes->post('/login', 'AuthController::login');
@@ -40,10 +40,12 @@ $routes->post('/register', 'AuthController::register');
 $routes->get('/dashboard', 'DashboardController');
 $routes->post('/auth/verify', 'AuthController::verify');
 $routes->get('/auth/verify', 'AuthController::verify');
+$routes->get('/auth/forgot', 'AuthController::forgotIndex');
+$routes->post('/auth/forgot', 'AuthController::forgotPassword');
 $routes->post('/auth/reset', 'AuthController::resetPassword');
-$routes->get('/auth/reset', 'AuthController::resetPassword');
-$routes->get('/auth/forgot', 'AuthController::forgotPassword');
-$routes->get('/auth/forgot', 'AuthController::forgotPassword');
+// $routes->get('/auth/reset', 'AuthController::resetPassword');
+// $routes->post('/auth/checkReset', 'AuthController::checkReset');
+// $routes->post('/auth/reset', 'AuthController::resetPassword');
 
 /*
  * --------------------------------------------------------------------
