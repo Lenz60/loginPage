@@ -29,7 +29,7 @@ class UserModel extends Model
         $builder = $this->table('users');
         $data = $builder->where('email', $email)->first();
         if (!$data) {
-            return false;
+            return 'no account';
         } else {
             $id = $data['id'];
             $pass = $data['password'];
@@ -99,6 +99,18 @@ class UserModel extends Model
         $model = new UserModel();
         $builder = $this->table('users');
         $data = $builder->where('email', $email)->first();
+        if (!$data) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    public function checkPass($password)
+    {
+        $model = new UserModel();
+        $builder = $this->table('users');
+        $data = $builder->where('password', $password)->first();
         if (!$data) {
             return false;
         } else {

@@ -39,8 +39,11 @@ class AuthController extends BaseController
             'password' => $model->encryptPass($password)
         ];
         $result = $model->login($data);
-        if ($result == false) {
+        if (!$result) {
             $session->setFlashdata('message', 'Incorrect email or password');
+            return redirect()->to('/login');
+        } else if ($result == 'no account') {
+            $session->setFlashdata('message', 'There is no acount with that email address');
             return redirect()->to('/login');
         } else {
             $key = getenv('JWT_SECRET_KEY');
@@ -207,7 +210,7 @@ class AuthController extends BaseController
             $session->set($data);
             return view('reset', $data);
         } else {
-            $session->setFlashdata('message', 'Token Invalid');
+            $session->setFlashdata('message', 'Token invalid');
             return redirect()->to('/login');
         }
 
@@ -314,110 +317,27 @@ class AuthController extends BaseController
                 'email' => $email,
                 'password' => $userModel->encryptPass($password)
             ];
-            $result = $userModel->resetPass($data);
-            if ($result) {
-                $session->setFlashdata('message-success', 'Password Changed!');
-                $tokenModel->deleteToken($token);
-                return redirect()->to('/login');
+            $check = $userModel->checkPass($data['password']);
+            if ($check) {
+                $data = [
+                    'title' => 'Reset Password',
+                    'email' => $email,
+                ];
+                $session->setFlashdata('message', "New password can't be your current password");
+                return view('reset', $data);
             } else {
-                $session->setFlashdata('message', 'Password Reset Failed!');
-                return redirect()->to('/login');
+                $result = $userModel->resetPass($data);
+                if ($result) {
+                    $session->setFlashdata('message-success', 'Password changed!');
+                    $tokenModel->deleteToken($token);
+                    return redirect()->to('/login');
+                } else {
+                    $session->setFlashdata('message', 'Password reset failed!');
+                    return redirect()->to('/login');
+                }
             }
         }
-        // if (!$this->request->getVar('email') | !$this->request->getVar('email')) {
-        //     $session->setFlashdata('message', 'Token Invalid');
-        //     return redirect()->to('/login');
-        // } else {
-        // }
     }
-
-
-    // public function checkReset()
-    // {
-    //     $session = \Config\Services::session();
-    //     $incomingToken = urldecode($this->request->getVar('token'));
-    //     $incomingEmail = $this->request->getVar('email');
-    //     if (!$incomingToken || !$incomingEmail) {
-    //         $session->setFlashdata('message', 'Token input invalid');
-    //         return redirect()->to('/login');
-    //     } else {
-    //         $tokenModel = new TokenModel();
-    //         $userModel = new UserModel();
-    //         $email = $incomingEmail;
-    //         $token = $incomingToken;
-    //         $data = [
-    //             'email' => $email,
-    //             'token' => $token
-    //         ];
-    //         //check the token first
-    //         $result = $tokenModel->checkToken($data);
-    //         if (!$result) {
-    //             $session->setFlashdata('message', 'Token check invalid');
-    //             return redirect()->to('/login');
-    //         } else {
-    //             return redirect()->to('/auth/reset');
-    //         }
-    //     }
-    // }
-
-
-    // public function resetIndex()
-    // {
-    //     //Check token from email
-    //     //If it exists, check the token
-    //     //If not throw flash message and go back to login
-    //     //If the token is invalid throwflash message and go back to login
-    //     //If the token is valid proceed to change the current user's password
-    //     //If the pass change is successful delete the token from db and go back to login with success message
-    //     //validate the form
-    //     $validate = $this->validate([
-    //         'reset-password' => [
-    //             'rules' => 'required|min_length[3]',
-    //             'errors' => [
-    //                 'required' => 'Please enter your password'
-    //             ]
-    //         ],
-    //         'reset-confirm-password' => [
-    //             'rules' => 'required|min_length[3]|matches[password]',
-    //             'errors' => [
-    //                 'required' => 'Please enter your password',
-    //                 'matches' => 'The password is not match'
-    //             ]
-    //         ]
-    //     ]);
-    //     if (!$validate) {
-    //         $data = [
-    //             'title' => 'Reset Password',
-    //             'validation' => $this->validator
-    //         ];
-    //         return view('reset', $data);
-    //     } else {
-    //         return view('reset');
-    //     }
-    // }
-
-    // public function resetPassword()
-    // {
-    //     $userModel = new UserModel();
-    //     $tokenModel = new TokenModel();
-    //     $session = \Config\Services::session();
-    //     $token = $data['token'];
-    //     $dataReset = [
-    //         'email' => $data['email'],
-    //         'password' => $data['password'],
-    //     ];
-    //     $resultReset = $userModel->resetPass($dataReset);
-    //     if ($resultReset) {
-    //         $session->setFlashdata('message-success', 'Password reset success!');
-    //         $tokenModel->deleteToken($token);
-    //         return redirect()->to('/login');
-    //     } else {
-    //         $session->setFlashdata('message', 'Invalid email, Password reset failed!');
-    //         $tokenModel->deleteToken($token);
-    //         return redirect()->to('/auth/reset');
-    //     }
-    // }
-
     public function logout()
     {
         $session = \Config\Services::session();
