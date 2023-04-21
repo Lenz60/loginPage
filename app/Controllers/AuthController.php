@@ -48,7 +48,6 @@ class AuthController extends BaseController
         } else {
             $key = getenv('JWT_SECRET_KEY');
             $decoded_token = JWT::decode($result, new Key($key, 'HS256'));
-            //change it to 1 later
             if ($decoded_token->is_active == 1) {
                 $expireCookie = time() + 3600000;
                 setcookie("COOKIE-SESSION", $result, $expireCookie, '/', null, 'null', true);
